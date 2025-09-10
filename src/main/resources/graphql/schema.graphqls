@@ -1,0 +1,63 @@
+type Query {
+    students(limit: Int): [Student]
+    studentsByGrade(grade: Int!): [Student]
+    searchStudents(name: String!): [Student]
+    teachers: [Teacher]
+    searchTeachers(name: String!): [Teacher]
+    classes: [SchoolClass]
+    classesByGrade(grade: Int!): [SchoolClass]
+    grades: [Grade]
+    gradesByStudent(studentId: ID!): [Grade]
+    attendanceByDate(date: String!): [Attendance]
+    studentAttendance(studentId: ID!, startDate: String!, endDate: String!): [Attendance]
+}
+
+type Mutation {
+    createStudent(firstName: String!, lastName: String!, grade: Int!, email: String!, classId: ID): Student
+    createTeacher(firstName: String!, lastName: String!, email: String!, subject: String!): Teacher
+    createClass(name: String!, grade: Int!, room: String!, teacherId: ID): SchoolClass
+    createGrade(studentId: ID!, subject: String!, score: Float!, semester: String!): Grade
+    markAttendance(studentId: ID!, date: String!, status: String!): Attendance
+}
+
+type Student {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    grade: Int!
+    email: String!
+    schoolClass: SchoolClass
+}
+
+type Teacher {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    subject: String!
+    classes: [SchoolClass]
+}
+
+type SchoolClass {
+    id: ID!
+    name: String!
+    grade: Int!
+    room: String!
+    teacher: Teacher
+    students: [Student]
+}
+
+type Grade {
+    id: ID!
+    student: Student!
+    subject: String!
+    score: Float!
+    semester: String!
+}
+
+type Attendance {
+    id: ID!
+    student: Student!
+    date: String!
+    status: String!
+}
