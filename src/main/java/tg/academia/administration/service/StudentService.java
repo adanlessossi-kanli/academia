@@ -1,6 +1,8 @@
 package tg.academia.administration.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import tg.academia.administration.entity.SchoolClass;
@@ -10,12 +12,15 @@ import tg.academia.administration.exception.ResourceNotFoundException;
 import tg.academia.administration.repository.StudentRepository;
 import tg.academia.administration.repository.SchoolClassRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StudentService {
     private final StudentRepository studentRepository;
     private final SchoolClassRepository schoolClassRepository;
 
+    @CacheEvict(value = "students", allEntries = true)
     public Student createStudent(String firstName, String lastName, Integer grade, String email, Long classId) {
         if (studentRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("Student", "email", email);
@@ -43,6 +48,7 @@ public class StudentService {
         }
     }
     
+    @CacheEvict(value = "students", allEntries = true)
     public Student updateStudent(Long id, String firstName, String lastName, Integer grade, String email, Long classId) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", id));
@@ -66,5 +72,15 @@ public class StudentService {
         }
         
         return studentRepository.save(student);
+    }
+    
+    @Cacheable(value = "students", key = "#grade")
+    public List<Student> getStudentsByGrade(Integer grade) {
+        return studentRepository.findByGrade(grade);
+    }
+    
+    @CacheEvict(value = "students", allEntries = true)
+    public void deleteStudent(Long id) {
+        studentRepository.deleteById(id);
     }
 }

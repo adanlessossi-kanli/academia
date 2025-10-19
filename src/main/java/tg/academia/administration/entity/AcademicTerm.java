@@ -1,41 +1,37 @@
 package tg.academia.administration.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @EntityListeners(AuditingEntityListener.class)
-public class Student {
+public class AcademicTerm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @NotBlank
-    private String firstName;
+    private String name;
     
-    @NotBlank
-    private String lastName;
+    @NotNull
+    private LocalDate startDate;
     
-    @Min(1) @Max(6)
-    private Integer grade;
+    @NotNull
+    private LocalDate endDate;
     
-    @Email
-    @Column(unique = true)
-    private String email;
+    @Enumerated(EnumType.STRING)
+    private TermStatus status = TermStatus.PLANNED;
     
-    @ManyToOne
-    @JoinColumn(name = "class_id")
-    @JsonIgnore
-    private SchoolClass schoolClass;
+    private boolean active = false;
     
     @CreatedDate
     @Column(updatable = false)
@@ -43,4 +39,8 @@ public class Student {
     
     @LastModifiedDate
     private LocalDateTime updatedAt;
+    
+    public enum TermStatus {
+        PLANNED, ACTIVE, COMPLETED
+    }
 }
