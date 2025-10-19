@@ -13,6 +13,7 @@ import tg.academia.administration.repository.StudentRepository;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -89,7 +90,7 @@ public class BulkOperationsService {
                 if (studentOpt.isPresent()) {
                     Attendance attendance = new Attendance();
                     attendance.setStudent(studentOpt.get());
-                    attendance.setDate(request.date());
+                    attendance.setDate(LocalDate.parse(request.date()));
                     attendance.setStatus(Attendance.AttendanceStatus.valueOf(request.status()));
                     
                     attendanceRepository.save(attendance);

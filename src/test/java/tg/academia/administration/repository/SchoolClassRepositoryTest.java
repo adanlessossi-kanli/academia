@@ -4,12 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
+import tg.academia.administration.config.AuditConfig;
 import tg.academia.administration.entity.SchoolClass;
 import tg.academia.administration.entity.Teacher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@Import(AuditConfig.class)
 class SchoolClassRepositoryTest {
 
     @Autowired

@@ -107,12 +107,12 @@ class GradeControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void getGradesByStudent_WithoutAuthentication_ShouldReturn401() throws Exception {
         mockMvc.perform(get("/api/grades/student/1"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }

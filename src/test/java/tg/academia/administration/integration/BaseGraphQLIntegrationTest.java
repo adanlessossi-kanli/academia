@@ -14,7 +14,8 @@ import tg.academia.administration.repository.TeacherRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureHttpGraphQlTester
-@TestPropertySource(properties = {"spring.jpa.hibernate.ddl-auto=create-drop", "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration"})
+@TestPropertySource(properties = {"spring.jpa.hibernate.ddl-auto=create-drop", "spring.profiles.active=test"})
+@org.springframework.context.annotation.Import(tg.academia.administration.config.TestSecurityConfig.class)
 public abstract class BaseGraphQLIntegrationTest {
 
     @Autowired

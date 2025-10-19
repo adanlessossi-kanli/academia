@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
+@org.springframework.context.annotation.Import(tg.academia.administration.config.TestSecurityConfig.class)
 class SecurityConfigTest {
 
     @Autowired

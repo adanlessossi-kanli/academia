@@ -2,6 +2,7 @@ package tg.academia.administration.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import tg.academia.administration.entity.User;
@@ -9,6 +10,7 @@ import tg.academia.administration.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!test")
 public class DataLoader implements CommandLineRunner {
 
     private final UserRepository userRepository;

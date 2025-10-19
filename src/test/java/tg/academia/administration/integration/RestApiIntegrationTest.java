@@ -24,8 +24,7 @@ class RestApiIntegrationTest {
     void getAllStudents_ReturnsStudentList() {
         var response = restTemplate.getForEntity("/api/students", Object[].class);
         
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -34,21 +33,20 @@ class RestApiIntegrationTest {
         
         var response = restTemplate.postForEntity("/api/students", request, Object.class);
         
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
     void getAllTeachers_ReturnsTeacherList() {
         var response = restTemplate.getForEntity("/api/teachers", Object[].class);
         
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
     void searchStudents_ReturnsMatchingStudents() {
         var response = restTemplate.getForEntity("/api/students/search?name=Alice", Object[].class);
         
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 }

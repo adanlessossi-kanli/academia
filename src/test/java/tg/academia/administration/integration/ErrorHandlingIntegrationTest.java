@@ -10,6 +10,7 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureHttpGraphQlTester
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
+@org.springframework.context.annotation.Import(tg.academia.administration.config.TestSecurityConfig.class)
 class ErrorHandlingIntegrationTest {
 
     @Autowired
