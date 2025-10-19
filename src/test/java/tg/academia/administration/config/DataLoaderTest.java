@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import tg.academia.administration.repository.*;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -30,23 +31,23 @@ class DataLoaderTest {
     @Mock
     private AttendanceRepository attendanceRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private DataLoader dataLoader;
 
     @Test
     void run_CreatesAllSampleData() throws Exception {
-        when(teacherRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(schoolClassRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(studentRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(gradeRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(attendanceRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(userRepository.count()).thenReturn(0L);
+        when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(passwordEncoder.encode(any())).thenReturn("encoded");
 
         dataLoader.run();
 
-        verify(teacherRepository, times(2)).save(any());
-        verify(schoolClassRepository, times(2)).save(any());
-        verify(studentRepository, times(2)).save(any());
-        verify(gradeRepository, times(2)).save(any());
-        verify(attendanceRepository, times(2)).save(any());
+        verify(userRepository, times(3)).save(any());
     }
 }

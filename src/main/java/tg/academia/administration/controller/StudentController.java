@@ -3,6 +3,7 @@ package tg.academia.administration.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tg.academia.administration.entity.Student;
 import tg.academia.administration.repository.StudentRepository;
@@ -39,6 +40,7 @@ public class StudentController {
 
     @PostMapping
     @Operation(summary = "Create new student")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
     public Student createStudent(@RequestBody CreateStudentRequest request) {
         return studentService.createStudent(
             request.firstName(), 
