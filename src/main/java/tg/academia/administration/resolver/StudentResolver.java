@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 @Controller
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class StudentResolver {
 
     @QueryMapping
     public List<Student> studentsByGrade(@Argument Integer grade) {
-        return studentRepository.findByGrade(grade);
+        return studentService.getStudentsByGrade(grade);
     }
     
     @QueryMapping
@@ -57,14 +58,19 @@ public class StudentResolver {
         var classIds = students.stream()
             .filter(s -> s.getSchoolClass() != null)
             .map(s -> s.getSchoolClass().getId())
-            .collect(toSet());
+            .distinct()
+            .collect(toList());
+        
+        if (classIds.isEmpty()) {
+            return Map.of();
+        }
         
         var classes = schoolClassRepository.findAllById(classIds)
             .stream()
             .collect(toMap(SchoolClass::getId, c -> c));
         
         return students.stream()
-            .filter(s -> s.getSchoolClass() != null)
+            .filter(s -> s.getSchoolClass() != null && classes.containsKey(s.getSchoolClass().getId()))
             .collect(toMap(s -> s, s -> classes.get(s.getSchoolClass().getId())));
     }
 }

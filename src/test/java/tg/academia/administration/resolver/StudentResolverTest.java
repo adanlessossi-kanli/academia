@@ -49,7 +49,7 @@ class StudentResolverTest {
     void studentsByGrade_ReturnsStudentsForGrade() {
         Student student = new Student();
         student.setGrade(3);
-        when(studentRepository.findByGrade(3)).thenReturn(List.of(student));
+        when(studentService.getStudentsByGrade(3)).thenReturn(List.of(student));
 
         List<Student> result = studentResolver.studentsByGrade(3);
 

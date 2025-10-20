@@ -21,10 +21,11 @@ public class CacheConfig {
     @Primary
     @Profile("!prod")
     public CacheManager caffeineCacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("students", "teachers", "classes");
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .maximumSize(1000)
-                .expireAfterWrite(Duration.ofMinutes(10))
+                .maximumSize(5000)
+                .expireAfterWrite(Duration.ofMinutes(30))
+                .expireAfterAccess(Duration.ofMinutes(15))
                 .recordStats());
         return cacheManager;
     }

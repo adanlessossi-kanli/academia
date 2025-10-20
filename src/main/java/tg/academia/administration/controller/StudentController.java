@@ -65,7 +65,20 @@ public class StudentController {
     @GetMapping("/search")
     @Operation(summary = "Search students by name")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public List<Student> searchStudents(@RequestParam String name) {
+    public PageResponse<Student> searchStudents(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        var pageable = PageRequest.of(page, size);
+        var studentsPage = studentRepository.searchByNamePageable(name, pageable);
+        return new PageResponse<>(studentsPage);
+    }
+    
+    @GetMapping("/search/all")
+    @Operation(summary = "Search all students by name (non-paginated)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    public List<Student> searchAllStudents(@RequestParam String name) {
         return studentRepository.searchByName(name);
     }
 

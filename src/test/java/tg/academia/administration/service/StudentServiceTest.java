@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import tg.academia.administration.entity.SchoolClass;
 import tg.academia.administration.entity.Student;
@@ -29,12 +30,15 @@ class StudentServiceTest {
 
     @Mock
     private SchoolClassRepository schoolClassRepository;
+    
+    @Mock
+    private CacheManager cacheManager;
 
     private StudentService studentService;
 
     @BeforeEach
     void setUp() {
-        studentService = new StudentService(studentRepository, schoolClassRepository);
+        studentService = new StudentService(studentRepository, schoolClassRepository, cacheManager);
     }
 
     @Test
@@ -149,14 +153,14 @@ class StudentServiceTest {
         // Given
         Integer grade = 1;
         List<Student> students = Arrays.asList(new Student(), new Student());
-        when(studentRepository.findByGrade(grade)).thenReturn(students);
+        when(studentRepository.findByGradeOrderByLastNameAscFirstNameAsc(grade)).thenReturn(students);
 
         // When
         List<Student> result = studentService.getStudentsByGrade(grade);
 
         // Then
         assertEquals(2, result.size());
-        verify(studentRepository).findByGrade(grade);
+        verify(studentRepository).findByGradeOrderByLastNameAscFirstNameAsc(grade);
     }
 
     @Test

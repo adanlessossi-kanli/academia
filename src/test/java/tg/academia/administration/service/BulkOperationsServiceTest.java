@@ -48,7 +48,7 @@ class BulkOperationsServiceTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "students.csv", "text/csv", csvContent.getBytes(StandardCharsets.UTF_8));
 
-        when(studentRepository.save(any(Student.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(studentRepository.saveAll(any(List.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         Map<String, Object> result = bulkOperationsService.importStudents(file);
@@ -58,7 +58,7 @@ class BulkOperationsServiceTest {
         assertEquals(0, result.get("errorCount"));
         assertTrue(((List<?>) result.get("errors")).isEmpty());
         
-        verify(studentRepository, times(2)).save(any(Student.class));
+        verify(studentRepository, times(1)).saveAll(any(List.class));
     }
 
     @Test
@@ -71,7 +71,7 @@ class BulkOperationsServiceTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "students.csv", "text/csv", csvContent.getBytes(StandardCharsets.UTF_8));
 
-        when(studentRepository.save(any(Student.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(studentRepository.saveAll(any(List.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         Map<String, Object> result = bulkOperationsService.importStudents(file);
@@ -117,9 +117,8 @@ class BulkOperationsServiceTest {
         Student student2 = new Student();
         student2.setId(2L);
 
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student1));
-        when(studentRepository.findById(2L)).thenReturn(Optional.of(student2));
-        when(attendanceRepository.save(any(Attendance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(studentRepository.findAllById(Arrays.asList(1L, 2L))).thenReturn(Arrays.asList(student1, student2));
+        when(attendanceRepository.saveAll(any(List.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         BulkAttendanceRequest request = new BulkAttendanceRequest(
                 Arrays.asList(1L, 2L), "2024-01-15", "PRESENT");
@@ -132,15 +131,16 @@ class BulkOperationsServiceTest {
         assertEquals(0, result.get("errorCount"));
         assertTrue(((List<?>) result.get("errors")).isEmpty());
         
-        verify(attendanceRepository, times(2)).save(any(Attendance.class));
+        verify(attendanceRepository, times(1)).saveAll(any(List.class));
     }
 
     @Test
     void shouldHandleBulkAttendanceErrors() {
         // Given
-        when(studentRepository.findById(1L)).thenReturn(Optional.empty());
-        when(studentRepository.findById(2L)).thenReturn(Optional.of(new Student()));
-        when(attendanceRepository.save(any(Attendance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Student student2 = new Student();
+        student2.setId(2L);
+        when(studentRepository.findAllById(Arrays.asList(1L, 2L))).thenReturn(Arrays.asList(student2));
+        when(attendanceRepository.saveAll(any(List.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         BulkAttendanceRequest request = new BulkAttendanceRequest(
                 Arrays.asList(1L, 2L), "2024-01-15", "PRESENT");

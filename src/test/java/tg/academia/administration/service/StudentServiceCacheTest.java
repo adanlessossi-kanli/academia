@@ -38,14 +38,14 @@ class StudentServiceCacheTest {
         // Given
         Integer grade = 1;
         List<Student> students = Arrays.asList(new Student(), new Student());
-        when(studentRepository.findByGrade(grade)).thenReturn(students);
+        when(studentRepository.findByGradeOrderByLastNameAscFirstNameAsc(grade)).thenReturn(students);
 
         // When
         List<Student> result = studentService.getStudentsByGrade(grade);
 
         // Then
         assertEquals(students, result);
-        verify(studentRepository, atLeastOnce()).findByGrade(grade);
+        verify(studentRepository, atLeastOnce()).findByGradeOrderByLastNameAscFirstNameAsc(grade);
     }
 
     @Test
@@ -86,13 +86,16 @@ class StudentServiceCacheTest {
     @Test
     void shouldEvictCacheOnStudentDeletion() {
         // Given
-        when(studentRepository.existsById(1L)).thenReturn(true);
+        Student student = new Student();
+        student.setId(1L);
+        student.setGrade(1);
+        when(studentRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
         
         // When
         studentService.deleteStudent(1L);
         
         // Then
-        verify(studentRepository, times(1)).existsById(1L);
+        verify(studentRepository, times(1)).findById(1L);
         verify(studentRepository, times(1)).deleteById(1L);
     }
 }
