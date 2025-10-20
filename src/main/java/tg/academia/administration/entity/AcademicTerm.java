@@ -13,24 +13,30 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "academic_terms")
 @EntityListeners(AuditingEntityListener.class)
 public class AcademicTerm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank
+    @NotBlank(message = "Term name is required")
+    @Column(nullable = false)
     private String name;
     
-    @NotNull
+    @NotNull(message = "Start date is required")
+    @Column(nullable = false)
     private LocalDate startDate;
     
-    @NotNull
+    @NotNull(message = "End date is required")
+    @Column(nullable = false)
     private LocalDate endDate;
     
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TermStatus status = TermStatus.PLANNED;
     
+    @Column(nullable = false)
     private boolean active = false;
     
     @CreatedDate

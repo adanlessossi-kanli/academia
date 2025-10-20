@@ -3,7 +3,10 @@ package tg.academia.administration.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,27 +15,35 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "students", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @EntityListeners(AuditingEntityListener.class)
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank
+    @NotBlank(message = "First name is required")
+    @Column(nullable = false)
     private String firstName;
     
-    @NotBlank
+    @NotBlank(message = "Last name is required")
+    @Column(nullable = false)
     private String lastName;
     
-    @Min(1) @Max(6)
+    @Min(value = 1, message = "Grade must be between 1 and 6")
+    @Max(value = 6, message = "Grade must be between 1 and 6")
+    @Column(nullable = false)
     private Integer grade;
     
-    @Email
-    @Column(unique = true)
+    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email is required")
+    @Column(unique = true, nullable = false)
     private String email;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id")
     @JsonIgnore
     private SchoolClass schoolClass;
@@ -43,4 +54,12 @@ public class Student {
     
     @LastModifiedDate
     private LocalDateTime updatedAt;
+    
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+    
+    public boolean isInGrade(int targetGrade) {
+        return grade != null && grade == targetGrade;
+    }
 }

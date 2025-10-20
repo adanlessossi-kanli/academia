@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import tg.academia.administration.dto.StudentRequest;
 import tg.academia.administration.entity.Student;
 import tg.academia.administration.repository.StudentRepository;
 
@@ -38,7 +39,7 @@ class StudentControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void shouldCreateStudent() throws Exception {
-        var request = new StudentController.CreateStudentRequest(
+        var request = new StudentRequest(
                 "John", "Doe", 1, "john.doe@test.com", null);
 
         mockMvc.perform(post("/api/students")
@@ -114,7 +115,7 @@ class StudentControllerIntegrationTest {
         student.setEmail("original@test.com");
         Student saved = studentRepository.save(student);
 
-        var updateRequest = new StudentController.CreateStudentRequest(
+        var updateRequest = new StudentRequest(
                 "Updated", "Name", 1, "updated@test.com", null);
 
         mockMvc.perform(put("/api/students/" + saved.getId())

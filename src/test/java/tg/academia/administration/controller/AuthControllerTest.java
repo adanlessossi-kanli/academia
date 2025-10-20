@@ -40,9 +40,7 @@ class AuthControllerTest {
     @Test
     void shouldLoginSuccessfully() throws Exception {
         // Given
-        var loginRequest = new AuthController.LoginRequest();
-        loginRequest.setUsername("admin");
-        loginRequest.setPassword("admin123");
+        var loginRequest = new AuthController.LoginRequest("admin", "admin123");
 
         var userDetails = User.builder()
                 .username("admin")
@@ -65,9 +63,7 @@ class AuthControllerTest {
     @Test
     void shouldFailLoginWithInvalidCredentials() throws Exception {
         // Given
-        var loginRequest = new AuthController.LoginRequest();
-        loginRequest.setUsername("admin");
-        loginRequest.setPassword("wrong-password");
+        var loginRequest = new AuthController.LoginRequest("admin", "wrong-password");
 
         when(authenticationManager.authenticate(any()))
                 .thenThrow(new BadCredentialsException("Invalid credentials"));
@@ -82,7 +78,7 @@ class AuthControllerTest {
     @Test
     void shouldValidateLoginRequest() throws Exception {
         // Given - empty request
-        var loginRequest = new AuthController.LoginRequest();
+        var loginRequest = new AuthController.LoginRequest("", "");
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
@@ -95,8 +91,7 @@ class AuthControllerTest {
     @Test
     void shouldValidateUsernameRequired() throws Exception {
         // Given
-        var loginRequest = new AuthController.LoginRequest();
-        loginRequest.setPassword("password");
+        var loginRequest = new AuthController.LoginRequest("", "password");
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
@@ -108,8 +103,7 @@ class AuthControllerTest {
     @Test
     void shouldValidatePasswordRequired() throws Exception {
         // Given
-        var loginRequest = new AuthController.LoginRequest();
-        loginRequest.setUsername("admin");
+        var loginRequest = new AuthController.LoginRequest("admin", "");
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tg.academia.administration.dto.TeacherRequest;
 import tg.academia.administration.entity.Teacher;
 import tg.academia.administration.repository.TeacherRepository;
 import tg.academia.administration.service.TeacherService;
@@ -54,7 +55,7 @@ class TeacherControllerTest {
     void createTeacher_ReturnsCreatedTeacher() {
         Teacher teacher = new Teacher();
         teacher.setFirstName("Bob");
-        var request = new TeacherController.CreateTeacherRequest("Bob", "Smith", "bob@test.com", "Math");
+        var request = new TeacherRequest("Bob", "Smith", "bob@test.com", "Math");
         when(teacherService.createTeacher("Bob", "Smith", "bob@test.com", "Math")).thenReturn(teacher);
 
         Teacher result = teacherController.createTeacher(request);

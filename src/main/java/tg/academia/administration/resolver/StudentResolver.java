@@ -15,7 +15,8 @@ import tg.academia.administration.service.StudentService;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,10 +27,9 @@ public class StudentResolver {
 
     @QueryMapping
     public List<Student> students(@Argument Integer limit) {
-        if (limit != null) {
-            return studentRepository.findAll(PageRequest.of(0, limit)).getContent();
-        }
-        return studentRepository.findAll();
+        return limit != null 
+            ? studentRepository.findAll(PageRequest.of(0, limit)).getContent()
+            : studentRepository.findAll();
     }
 
     @QueryMapping
@@ -43,13 +43,13 @@ public class StudentResolver {
     }
 
     @MutationMapping
-    public Student createStudent(@Argument String firstName, @Argument String lastName, 
-                                @Argument Integer grade, @Argument String email, @Argument Long classId) {
-        try {
-            return studentService.createStudent(firstName, lastName, grade, email, classId);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+    public Student createStudent(
+            @Argument String firstName, 
+            @Argument String lastName, 
+            @Argument Integer grade, 
+            @Argument String email, 
+            @Argument Long classId) {
+        return studentService.createStudent(firstName, lastName, grade, email, classId);
     }
     
     @BatchMapping
@@ -57,13 +57,14 @@ public class StudentResolver {
         var classIds = students.stream()
             .filter(s -> s.getSchoolClass() != null)
             .map(s -> s.getSchoolClass().getId())
-            .collect(Collectors.toSet());
+            .collect(toSet());
         
         var classes = schoolClassRepository.findAllById(classIds)
-            .stream().collect(Collectors.toMap(SchoolClass::getId, c -> c));
+            .stream()
+            .collect(toMap(SchoolClass::getId, c -> c));
         
         return students.stream()
             .filter(s -> s.getSchoolClass() != null)
-            .collect(Collectors.toMap(s -> s, s -> classes.get(s.getSchoolClass().getId())));
+            .collect(toMap(s -> s, s -> classes.get(s.getSchoolClass().getId())));
     }
 }

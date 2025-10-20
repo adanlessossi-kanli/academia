@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import tg.academia.administration.config.TestSecurityConfig;
-import tg.academia.administration.controller.StudentController;
+import tg.academia.administration.dto.StudentRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ class RestApiIntegrationTest {
 
     @Test
     void createStudent_ReturnsCreatedStudent() {
-        var request = new StudentController.CreateStudentRequest("Test", "User", 3, "test@example.com", null);
+        var request = new StudentRequest("Test", "User", 3, "test@example.com", null);
         
         var response = restTemplate.postForEntity("/api/students", request, Object.class);
         

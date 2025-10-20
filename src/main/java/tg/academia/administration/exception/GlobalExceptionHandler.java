@@ -19,25 +19,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Resource Not Found")
-                .message(ex.getMessage())
-                .build();
+        var error = createErrorResponse(HttpStatus.NOT_FOUND, "Resource Not Found", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.CONFLICT.value())
-                .error("Duplicate Resource")
-                .message(ex.getMessage())
-                .build();
+        var error = createErrorResponse(HttpStatus.CONFLICT, "Duplicate Resource", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(ValidationException ex) {
+        var error = createValidationErrorResponse(ex);
+        return ResponseEntity.badRequest().body(error);
+    }
+
+
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
@@ -82,12 +80,30 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error("Internal Server Error")
-                .message("An unexpected error occurred")
-                .build();
+        var error = createErrorResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR, 
+            "Internal Server Error", 
+            "An unexpected error occurred"
+        );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+    
+    private ErrorResponse createErrorResponse(HttpStatus status, String error, String message) {
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(error)
+                .message(message)
+                .build();
+    }
+    
+    private ErrorResponse createValidationErrorResponse(ValidationException ex) {
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Validation Failed")
+                .message(ex.getMessage())
+                .validationErrors(ex.getFieldErrors())
+                .build();
     }
 }

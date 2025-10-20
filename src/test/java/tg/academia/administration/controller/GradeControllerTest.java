@@ -10,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import tg.academia.administration.config.TestSecurityConfig;
+import tg.academia.administration.dto.GradeRequest;
 import tg.academia.administration.entity.Grade;
 import tg.academia.administration.entity.Student;
 import tg.academia.administration.repository.GradeRepository;
+import tg.academia.administration.repository.StudentRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +35,9 @@ class GradeControllerTest {
 
     @MockBean
     private GradeRepository gradeRepository;
+    
+    @MockBean
+    private StudentRepository studentRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -71,7 +76,7 @@ class GradeControllerTest {
     @Test
     @WithMockUser(roles = "TEACHER")
     void createGrade_WithValidData_ShouldCreateGrade() throws Exception {
-        GradeController.CreateGradeRequest request = new GradeController.CreateGradeRequest(
+        GradeRequest request = new GradeRequest(
                 1L, "Math", "Fall 2024", 88.5
         );
 
@@ -84,13 +89,14 @@ class GradeControllerTest {
         savedGrade.setSemester("Fall 2024");
         savedGrade.setScore(88.5);
 
+        when(studentRepository.findById(1L)).thenReturn(java.util.Optional.of(student));
         when(gradeRepository.save(any(Grade.class))).thenReturn(savedGrade);
 
         mockMvc.perform(post("/api/grades")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.subject").value("Math"))
                 .andExpect(jsonPath("$.semester").value("Fall 2024"))
@@ -99,7 +105,7 @@ class GradeControllerTest {
 
     @Test
     void createGrade_WithoutAuthentication_ShouldReturn401() throws Exception {
-        GradeController.CreateGradeRequest request = new GradeController.CreateGradeRequest(
+        GradeRequest request = new GradeRequest(
                 1L, "Math", "Fall 2024", 88.5
         );
 

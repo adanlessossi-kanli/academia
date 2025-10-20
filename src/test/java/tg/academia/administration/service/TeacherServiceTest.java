@@ -38,7 +38,6 @@ class TeacherServiceTest {
         when(teacherRepository.existsByEmail("teacher@email.com")).thenReturn(true);
 
         assertThatThrownBy(() -> teacherService.createTeacher("Jane", "Smith", "teacher@email.com", "Math"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Email already exists");
+            .isInstanceOf(tg.academia.administration.exception.DuplicateResourceException.class);
     }
 }

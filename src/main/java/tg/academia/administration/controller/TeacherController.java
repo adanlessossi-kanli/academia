@@ -2,9 +2,12 @@ package tg.academia.administration.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tg.academia.administration.dto.TeacherRequest;
 import tg.academia.administration.entity.Teacher;
 import tg.academia.administration.repository.TeacherRepository;
 import tg.academia.administration.service.TeacherService;
@@ -33,9 +36,10 @@ public class TeacherController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create new teacher")
-    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
-    public Teacher createTeacher(@RequestBody CreateTeacherRequest request) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public Teacher createTeacher(@Valid @RequestBody TeacherRequest request) {
         return teacherService.createTeacher(
             request.firstName(), 
             request.lastName(), 
@@ -43,11 +47,4 @@ public class TeacherController {
             request.subject()
         );
     }
-
-    public record CreateTeacherRequest(
-        String firstName, 
-        String lastName, 
-        String email, 
-        String subject
-    ) {}
 }

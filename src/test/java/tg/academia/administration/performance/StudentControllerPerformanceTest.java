@@ -10,7 +10,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import tg.academia.administration.controller.StudentController;
+import tg.academia.administration.dto.StudentRequest;
 import tg.academia.administration.entity.Student;
 import tg.academia.administration.repository.StudentRepository;
 
@@ -45,7 +45,7 @@ class StudentControllerPerformanceTest {
         
         // Create 50 students
         for (int i = 0; i < 50; i++) {
-            var request = new StudentController.CreateStudentRequest(
+            var request = new StudentRequest(
                     "Student" + i, "Test", 1, "student" + i + "@test.com", null);
 
             mockMvc.perform(post("/api/students")

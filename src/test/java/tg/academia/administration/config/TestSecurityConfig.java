@@ -3,6 +3,7 @@ package tg.academia.administration.config;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.authentication.ProviderManager;
@@ -23,11 +24,12 @@ import static org.mockito.Mockito.when;
 
 @TestConfiguration
 @EnableMethodSecurity(prePostEnabled = true)
+@Profile("test")
 public class TestSecurityConfig {
 
-    @Bean(name = "testSecurityFilterChain")
+    @Bean
     @Primary
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/h2-console/**", "/graphql/**", "/graphiql/**").permitAll()

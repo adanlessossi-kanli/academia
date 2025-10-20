@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import tg.academia.administration.controller.StudentController;
+import tg.academia.administration.dto.StudentRequest;
 import tg.academia.administration.repository.StudentRepository;
 import tg.academia.administration.service.StudentService;
 
@@ -50,7 +51,7 @@ class GlobalExceptionHandlerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void shouldHandleValidationException() throws Exception {
-        var request = new StudentController.CreateStudentRequest("", "", 0, "invalid-email", null);
+        var request = new StudentRequest("", "", 0, "invalid-email", null);
 
         mockMvc.perform(post("/api/students")
                 .with(csrf())
@@ -66,7 +67,7 @@ class GlobalExceptionHandlerTest {
         when(studentService.createStudent(any(), any(), any(), any(), any()))
                 .thenThrow(new DuplicateResourceException("Student", "email", "test@test.com"));
 
-        var request = new StudentController.CreateStudentRequest("John", "Doe", 1, "test@test.com", null);
+        var request = new StudentRequest("John", "Doe", 1, "test@test.com", null);
 
         mockMvc.perform(post("/api/students")
                 .with(csrf())

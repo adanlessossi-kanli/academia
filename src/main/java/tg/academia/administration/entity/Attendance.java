@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Data
+@Table(name = "attendance")
 public class Attendance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +17,12 @@ public class Attendance {
     @JoinColumn(name = "student_id")
     private Student student;
     
-    @NotNull
+    @NotNull(message = "Date is required")
+    @Column(nullable = false)
     private LocalDate date;
     
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AttendanceStatus status;
     
     public enum AttendanceStatus {

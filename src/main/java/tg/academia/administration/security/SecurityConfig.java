@@ -11,8 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tg.academia.administration.repository.UserRepository;
@@ -20,13 +18,25 @@ import tg.academia.administration.exception.ResourceNotFoundException;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @Profile("!test")
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserRepository userRepository;
+    
+    private static final String[] PUBLIC_ENDPOINTS = {
+        "/api/auth/**", "/h2-console/**", "/graphql", 
+        "/swagger-ui/**", "/api-docs/**", "/actuator/health"
+    };
+    
+    private static final String[] TEACHER_ADMIN_ENDPOINTS = {
+        "/api/students/**", "/api/grades/**", "/api/attendance/**"
+    };
+    
+    private static final String[] ADMIN_ONLY_ENDPOINTS = {
+        "/api/teachers/**", "/api/bulk/**"
+    };
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -40,22 +50,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+        return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        return http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/h2-console/**", "/graphql", "/swagger-ui/**", "/api-docs/**").permitAll()
-                .requestMatchers("/api/students/**").hasAnyRole("ADMIN", "TEACHER")
-                .requestMatchers("/api/teachers/**").hasRole("ADMIN")
-                .requestMatchers("/api/grades/**").hasAnyRole("ADMIN", "TEACHER")
-                .requestMatchers("/api/attendance/**").hasAnyRole("ADMIN", "TEACHER")
-                .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(this::configureAuthorization)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
-        
-        return http.build();
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+            .build();
+    }
+    
+    private void configureAuthorization(org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
+        auth.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+            .requestMatchers(TEACHER_ADMIN_ENDPOINTS).hasAnyRole("ADMIN", "TEACHER")
+            .requestMatchers(ADMIN_ONLY_ENDPOINTS).hasRole("ADMIN")
+            .anyRequest().authenticated();
     }
 }

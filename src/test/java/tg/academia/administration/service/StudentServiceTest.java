@@ -166,7 +166,7 @@ class StudentServiceTest {
         when(studentRepository.save(any(Student.class))).thenThrow(new DataIntegrityViolationException("Duplicate"));
 
         // When & Then
-        assertThrows(DuplicateResourceException.class, () ->
+        assertThrows(DataIntegrityViolationException.class, () ->
                 studentService.createStudent("John", "Doe", 1, "test@test.com", null));
     }
 }

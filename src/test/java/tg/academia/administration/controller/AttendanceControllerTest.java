@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tg.academia.administration.dto.AttendanceRequest;
 import tg.academia.administration.entity.Attendance;
 import tg.academia.administration.entity.Student;
 import tg.academia.administration.repository.AttendanceRepository;
@@ -36,7 +37,7 @@ class AttendanceControllerTest {
         attendance.setDate(LocalDate.parse("2024-01-15"));
         when(attendanceRepository.findByDate(LocalDate.parse("2024-01-15"))).thenReturn(List.of(attendance));
 
-        List<Attendance> result = attendanceController.getAttendanceByDate("2024-01-15");
+        List<Attendance> result = attendanceController.getAttendanceByDate(LocalDate.parse("2024-01-15"));
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getDate()).isEqualTo(LocalDate.parse("2024-01-15"));
@@ -48,7 +49,7 @@ class AttendanceControllerTest {
         when(attendanceRepository.findByStudentIdAndDateBetween(1L, LocalDate.parse("2024-01-01"), LocalDate.parse("2024-01-31")))
             .thenReturn(List.of(attendance));
 
-        List<Attendance> result = attendanceController.getStudentAttendance(1L, "2024-01-01", "2024-01-31");
+        List<Attendance> result = attendanceController.getStudentAttendance(1L, LocalDate.parse("2024-01-01"), LocalDate.parse("2024-01-31"));
 
         assertThat(result).hasSize(1);
     }
@@ -60,7 +61,7 @@ class AttendanceControllerTest {
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
         when(attendanceRepository.save(any(Attendance.class))).thenAnswer(i -> i.getArgument(0));
 
-        var request = new AttendanceController.MarkAttendanceRequest(1L, "2024-01-15", "PRESENT");
+        var request = new AttendanceRequest(1L, LocalDate.parse("2024-01-15"), Attendance.AttendanceStatus.PRESENT);
         Attendance result = attendanceController.markAttendance(request);
 
         assertThat(result.getStudent()).isEqualTo(student);

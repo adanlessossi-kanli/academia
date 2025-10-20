@@ -1,23 +1,21 @@
 package tg.academia.administration.controller;
 
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import tg.academia.administration.security.JwtUtil;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Authentication operations")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -25,36 +23,32 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
+    @Operation(summary = "Authenticate user and generate JWT token")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        String token = jwtUtil.generateToken(userDetails);
+        var userDetails = userDetailsService.loadUserByUsername(request.username());
+        var token = jwtUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    @Setter
-    @Getter
-    public static class LoginRequest {
-        @NotBlank
-        private String username;
-        
-        @NotBlank
-        private String password;
+    public record LoginRequest(
+            @NotBlank(message = "Username is required")
+            String username,
+            
+            @NotBlank(message = "Password is required")
+            String password
+    ) {}
 
-    }
-
-    @Getter
-    public static class JwtResponse {
-        private final String token;
-        private final String type = "Bearer";
-
+    public record JwtResponse(
+            String token,
+            String type
+    ) {
         public JwtResponse(String token) {
-            this.token = token;
+            this(token, "Bearer");
         }
-
     }
 }

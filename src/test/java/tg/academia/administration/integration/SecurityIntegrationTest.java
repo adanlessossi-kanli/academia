@@ -48,6 +48,6 @@ class SecurityIntegrationTest {
                 .with(csrf())
                 .contentType("application/json")
                 .content("{\"studentId\":1,\"subject\":\"Math\",\"semester\":\"Fall\",\"score\":85.0}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 }

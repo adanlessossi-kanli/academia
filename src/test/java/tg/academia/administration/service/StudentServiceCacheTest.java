@@ -85,10 +85,14 @@ class StudentServiceCacheTest {
 
     @Test
     void shouldEvictCacheOnStudentDeletion() {
+        // Given
+        when(studentRepository.existsById(1L)).thenReturn(true);
+        
         // When
         studentService.deleteStudent(1L);
         
         // Then
+        verify(studentRepository, times(1)).existsById(1L);
         verify(studentRepository, times(1)).deleteById(1L);
     }
 }

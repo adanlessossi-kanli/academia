@@ -34,7 +34,6 @@ class ValidationIntegrationTest {
         teacherService.createTeacher("John", "Doe", "teacher@test.com", "Math");
 
         assertThatThrownBy(() -> teacherService.createTeacher("Jane", "Smith", "teacher@test.com", "Science"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Email already exists");
+            .isInstanceOf(DuplicateResourceException.class);
     }
 }

@@ -3,9 +3,8 @@ package tg.academia.administration.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import tg.academia.administration.entity.SchoolClass;
+import org.springframework.transaction.annotation.Transactional;
 import tg.academia.administration.entity.Student;
 import tg.academia.administration.exception.DuplicateResourceException;
 import tg.academia.administration.exception.ResourceNotFoundException;
@@ -16,60 +15,45 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StudentService {
     private final StudentRepository studentRepository;
     private final SchoolClassRepository schoolClassRepository;
 
+    @Transactional
     @CacheEvict(value = "students", allEntries = true)
     public Student createStudent(String firstName, String lastName, Integer grade, String email, Long classId) {
-        if (studentRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("Student", "email", email);
-        }
+        validateEmailUniqueness(email);
         
-        Student student = new Student();
-        student.setFirstName(firstName);
-        student.setLastName(lastName);
-        student.setGrade(grade);
-        student.setEmail(email);
+        var schoolClass = classId != null ? validateAndGetSchoolClass(classId, grade) : null;
         
-        if (classId != null) {
-            SchoolClass schoolClass = schoolClassRepository.findById(classId)
-                .orElseThrow(() -> new ResourceNotFoundException("SchoolClass", classId));
-            if (!schoolClass.getGrade().equals(grade)) {
-                throw new IllegalArgumentException("Student grade must match class grade");
-            }
-            student.setSchoolClass(schoolClass);
-        }
+        var student = Student.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .grade(grade)
+                .email(email)
+                .schoolClass(schoolClass)
+                .build();
         
-        try {
-            return studentRepository.save(student);
-        } catch (DataIntegrityViolationException e) {
-            throw new DuplicateResourceException("Student with email already exists: " + email);
-        }
+        return studentRepository.save(student);
     }
     
+    @Transactional
     @CacheEvict(value = "students", allEntries = true)
     public Student updateStudent(Long id, String firstName, String lastName, Integer grade, String email, Long classId) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", id));
+        var student = findStudentById(id);
         
-        // Check for duplicate email (excluding current student)
-        if (!student.getEmail().equals(email) && studentRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("Student", "email", email);
+        if (!student.getEmail().equals(email)) {
+            validateEmailUniqueness(email);
         }
+        
+        var schoolClass = classId != null ? validateAndGetSchoolClass(classId, grade) : null;
         
         student.setFirstName(firstName);
         student.setLastName(lastName);
         student.setGrade(grade);
         student.setEmail(email);
-        
-        if (classId != null) {
-            SchoolClass schoolClass = schoolClassRepository.findById(classId)
-                    .orElseThrow(() -> new ResourceNotFoundException("SchoolClass", classId));
-            student.setSchoolClass(schoolClass);
-        } else {
-            student.setSchoolClass(null);
-        }
+        student.setSchoolClass(schoolClass);
         
         return studentRepository.save(student);
     }
@@ -79,8 +63,34 @@ public class StudentService {
         return studentRepository.findByGrade(grade);
     }
     
+    @Transactional
     @CacheEvict(value = "students", allEntries = true)
     public void deleteStudent(Long id) {
+        if (!studentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Student", id);
+        }
         studentRepository.deleteById(id);
+    }
+    
+    private void validateEmailUniqueness(String email) {
+        if (studentRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException("Student", "email", email);
+        }
+    }
+    
+    private tg.academia.administration.entity.SchoolClass validateAndGetSchoolClass(Long classId, Integer grade) {
+        var schoolClass = schoolClassRepository.findById(classId)
+                .orElseThrow(() -> new ResourceNotFoundException("SchoolClass", classId));
+        
+        if (!schoolClass.getGrade().equals(grade)) {
+            throw new IllegalArgumentException("Student grade must match class grade");
+        }
+        
+        return schoolClass;
+    }
+    
+    private Student findStudentById(Long id) {
+        return studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student", id));
     }
 }
