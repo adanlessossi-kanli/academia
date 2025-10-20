@@ -36,7 +36,7 @@ public class Student {
     
     @Min(value = 1, message = "Grade must be between 1 and 6")
     @Max(value = 6, message = "Grade must be between 1 and 6")
-    @Column(nullable = false)
+    @Column(nullable = false, name = "grade")
     private Integer grade;
     
     @Email(message = "Email should be valid")

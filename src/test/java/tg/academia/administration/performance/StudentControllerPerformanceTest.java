@@ -46,7 +46,7 @@ class StudentControllerPerformanceTest {
         // Create 50 students
         for (int i = 0; i < 50; i++) {
             var request = new StudentRequest(
-                    "Student" + i, "Test", 1, "student" + i + "@test.com", null);
+                    "Student", "Test" + i, 1, "student" + i + "@test.com", null);
 
             mockMvc.perform(post("/api/students")
                     .with(csrf())
@@ -66,12 +66,16 @@ class StudentControllerPerformanceTest {
     @WithMockUser(roles = "ADMIN")
     void shouldHandlePaginationEfficiently() throws Exception {
         // Create test data
+        String[] lastNames = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+                              "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+                              "Lee", "Perez", "Thompson", "White", "Harris"};
         for (int i = 0; i < 25; i++) {
-            Student student = new Student();
-            student.setFirstName("Test" + i);
-            student.setLastName("User");
-            student.setGrade(1);
-            student.setEmail("test" + i + "@test.com");
+            Student student = Student.builder()
+                .firstName("Test")
+                .lastName(lastNames[i])
+                .grade(1)
+                .email("test" + i + "@test.com")
+                .build();
             studentRepository.save(student);
         }
 

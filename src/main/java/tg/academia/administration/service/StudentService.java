@@ -11,6 +11,7 @@ import tg.academia.administration.exception.DuplicateResourceException;
 import tg.academia.administration.exception.ResourceNotFoundException;
 import tg.academia.administration.repository.StudentRepository;
 import tg.academia.administration.repository.SchoolClassRepository;
+import tg.academia.administration.constant.AppConstants;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class StudentService {
     private final CacheManager cacheManager;
 
     @Transactional
-    @CacheEvict(value = "students", key = "#grade")
+    @CacheEvict(value = AppConstants.CACHE_STUDENTS, key = "#grade")
     public Student createStudent(String firstName, String lastName, Integer grade, String email, Long classId) {
         validateEmailUniqueness(email);
         
@@ -41,7 +42,7 @@ public class StudentService {
     }
     
     @Transactional
-    @CacheEvict(value = "students", key = "#grade")
+    @CacheEvict(value = AppConstants.CACHE_STUDENTS, key = "#grade")
     public Student updateStudent(Long id, String firstName, String lastName, Integer grade, String email, Long classId) {
         var student = findStudentById(id);
         Integer oldGrade = student.getGrade();
@@ -60,7 +61,7 @@ public class StudentService {
         
         // Evict old grade cache if grade changed
         if (oldGrade != null && !oldGrade.equals(grade)) {
-            var cache = cacheManager.getCache("students");
+            var cache = cacheManager.getCache(AppConstants.CACHE_STUDENTS);
             if (cache != null) {
                 cache.evict(oldGrade);
             }
@@ -69,12 +70,12 @@ public class StudentService {
         return studentRepository.save(student);
     }
     
-    @Cacheable(value = "students", key = "#grade")
+    @Cacheable(value = AppConstants.CACHE_STUDENTS, key = "#grade")
     public List<Student> getStudentsByGrade(Integer grade) {
         return studentRepository.findByGradeOrderByLastNameAscFirstNameAsc(grade);
     }
     
-    @Cacheable(value = "students", key = "'all'")
+    @Cacheable(value = AppConstants.CACHE_STUDENTS, key = "'all'")
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
@@ -82,7 +83,7 @@ public class StudentService {
     @Transactional
     public void deleteStudent(Long id) {
         var student = findStudentById(id);
-        var cache = cacheManager.getCache("students");
+        var cache = cacheManager.getCache(AppConstants.CACHE_STUDENTS);
         if (cache != null) {
             cache.evict(student.getGrade());
         }
