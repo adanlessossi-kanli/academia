@@ -1,6 +1,8 @@
 package tg.academia.administration.controller;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,6 +36,8 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
+    @Setter
+    @Getter
     public static class LoginRequest {
         @NotBlank
         private String username;
@@ -41,21 +45,16 @@ public class AuthController {
         @NotBlank
         private String password;
 
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
     }
 
+    @Getter
     public static class JwtResponse {
-        private String token;
-        private String type = "Bearer";
+        private final String token;
+        private final String type = "Bearer";
 
         public JwtResponse(String token) {
             this.token = token;
         }
 
-        public String getToken() { return token; }
-        public String getType() { return type; }
     }
 }
