@@ -19,13 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "students", 
-       uniqueConstraints = @UniqueConstraint(columnNames = "email"),
-       indexes = {
-           @Index(name = "idx_student_grade", columnList = "grade"),
-           @Index(name = "idx_student_email", columnList = "email"),
-           @Index(name = "idx_student_class", columnList = "class_id"),
-           @Index(name = "idx_student_name", columnList = "lastName, firstName")
-       })
+       uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @EntityListeners(AuditingEntityListener.class)
 public class Student {
     @Id
